@@ -1,6 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement; 
+using UnityEngine.UI; 
 
 public class player : MonoBehaviour
 {
@@ -11,23 +12,28 @@ public class player : MonoBehaviour
     private Rigidbody rb;
     private bool isGrounded;
 
+    
+    public GameObject winCanvas;
+    public GameObject deathCanvas;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        
+        if (winCanvas != null) winCanvas.SetActive(false);
+        if (deathCanvas != null) deathCanvas.SetActive(false);
     }
 
     void Update()
     {
-        // Movimiento hacia adelante/atrás
-        float move = Input.GetAxis("Vertical"); // W y S
+        float move = Input.GetAxis("Vertical");
         Vector3 forwardMovement = transform.forward * move * moveSpeed * Time.deltaTime;
         transform.position += forwardMovement;
 
-        // Rotación izquierda/derecha
-        float rotation = Input.GetAxis("Horizontal"); // A y D
+        float rotation = Input.GetAxis("Horizontal");
         transform.Rotate(Vector3.up, rotation * rotationSpeed * Time.deltaTime);
 
-        // Salto
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -41,5 +47,23 @@ public class player : MonoBehaviour
         {
             isGrounded = true;
         }
+
+        if (collision.gameObject.CompareTag("win"))
+        {
+            if (winCanvas != null) winCanvas.SetActive(true);
+            Time.timeScale = 0f; 
+        }
+        else if (collision.gameObject.CompareTag("muerte"))
+        {
+            if (deathCanvas != null) deathCanvas.SetActive(true);
+            Time.timeScale = 0f; 
+        }
+    }
+
+    
+    public void RestartGame()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("principal");
     }
 }
